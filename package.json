@@ -24,6 +24,7 @@
     "mongoose": "^9.0.1",
     "morgan": "^1.10.1",
     "nodemon": "^3.1.11",
-    "react-hot-toast": "^2.6.0"
+    "react-hot-toast": "^2.6.0",
+    "slugify": "^1.6.6"
   }
 }
