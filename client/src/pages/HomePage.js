@@ -9,7 +9,42 @@ const HomePage = () => {
   const [categories, setCategories] = useState([]);
   const [checked, setChecked] = useState([]);
   const [radio, setRadio] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
 
+
+  // get total count
+  const getTotal = async () => {
+    try {
+      const { data } = await axios.get(`${process.env.REACT_APP_API}/api/v1/product/product-count`);
+      setTotal(data?.total);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (page === 1) return;
+    loadMore();
+  }, [page]);
+
+  // load more products
+  const loadMore = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API}/api/v1/product/product-list/${page}`
+      );
+      setLoading(false);
+      if (data?.success) {
+        setProducts([...products, ...data?.products]);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
 
   // get all cat
   const getAllCategories = async () => {
@@ -26,17 +61,21 @@ const HomePage = () => {
 
   useEffect(() => {
     getAllCategories();
+    getTotal();
   }, []);
 
   const getAllProducts = async () => {
     try {
+      setLoading(true);
       const { data } = await axios.get(
-        `${process.env.REACT_APP_API}/api/v1/product/get-product`
+        `${process.env.REACT_APP_API}/api/v1/product/product-list/${page}`
       );
+      setLoading(false);
       if (data?.success) {
         setProducts(data.products);
       }
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
 
@@ -128,6 +167,18 @@ const HomePage = () => {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="m-2 p-3">
+            {products && products.length < total && (
+              <button className="btn btn-warning"
+                onClick={e => {
+                  e.preventDefault();
+                  setPage(page + 1);
+                }}
+              >
+                {loading ? "Loading..." : "Load more"}
+              </button>
+            )}
           </div>
         </div>
       </div>
